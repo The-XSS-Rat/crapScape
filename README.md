@@ -12,20 +12,21 @@ This is a simple text-based game where you can fight goblins, buy items, and tra
 - Follow the on-screen instructions to play the game
 
 ## Game Mechanics
-Player
-Name: Player's name
-Health: Starting health is 100. Decreases when the player is attacked by enemies.
-Attack: Starting attack power is 10. Increases when the player levels up.
-Defense: Starting defense power is 5. Decreases the damage taken from enemy attacks.
-Level: Starting level is 1. Increases when the player gains enough experience points.
-Experience: Starting experience points is 0. Increases when the player defeats enemies or trains.
-Gold: Starting gold is 0. Can be obtained by defeating enemies or training.
-Enemies
-Name: Goblin
-Health: Starting health is 50.
-Attack: Starting attack power is 5.
-Defense: Starting defense power is 2.
-Level: Starting level is 1.
+### Player
+- Name: Player's name
+- Health: Starting health is 100. Decreases when the player is attacked by enemies.
+- Attack: Starting attack power is 10. Increases when the player levels up.
+- Defense: Starting defense power is 5. Decreases the damage taken from enemy attacks.
+- Level: Starting level is 1. Increases when the player gains enough experience points.
+- Experience: Starting experience points is 0. Increases when the player defeats enemies or trains.
+- Gold: Starting gold is 0. Can be obtained by defeating enemies or training.
+
+### Enemies
+- Name: Goblin
+- Health: Starting health is 50.
+- Attack: Starting attack power is 5.
+- Defense: Starting defense power is 2.
+- Level: Starting level is 1.
 
 ## Actions
 - Fight goblins: Fight goblins to gain experience points and gold. If the player defeats the goblin, they gain 10 gold and experience points equal to the goblin's level times 10. If the player's health reaches 0, the game is over.
