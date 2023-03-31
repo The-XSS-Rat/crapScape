@@ -4,6 +4,39 @@ import pickle
 from colorama import init, Fore, Style
 
 
+class WoodcuttingLevel:
+    def __init__(self):
+        self.level = 1
+        self.exp = 0
+
+    def chop_tree(self, tree):
+        logs_obtained = 0
+        if self.level >= tree.level:
+            logs_obtained = tree.logs
+            self.exp += tree.exp
+            if self.exp >= self.level * 100:
+                self.level += 1
+                self.exp = 0
+        return logs_obtained
+
+
+class Tree:
+    def __init__(self, name, level, logs, exp):
+        self.name = name
+        self.level = level
+        self.logs = logs
+        self.exp = exp
+
+    def __str__(self):
+        return self.name
+
+
+tree1 = Tree("Normal tree", 1, 1, 10)
+tree2 = Tree("Oak tree", 15, 10, 100)
+tree3 = Tree("Willow tree", 30, 25, 250)
+tree4 = Tree("Maple tree", 45, 50, 500)
+tree5 = Tree("Yew tree", 60, 100, 1000)
+
 
 # Define player class
 class Player:
@@ -15,6 +48,8 @@ class Player:
         self.level = 1
         self.exp = 0
         self.gold = 0
+        self.woodcutting_level = WoodcuttingLevel()
+
 
     def buy_item(self, item_cost):
         if self.gold >= item_cost:
@@ -23,6 +58,43 @@ class Player:
         else:
             print(Fore.RED + "You don't have enough gold." + Style.RESET_ALL)
             return False
+
+def chop_tree(player):
+    print("Which tree do you want to chop?")
+    print("1. Normal tree (level 1)")
+    print("2. Oak tree (level 15)")
+    print("3. Willow tree (level 30)")
+    print("4. Maple tree (level 45)")
+    print("5. Yew tree (level 60)")
+    choice = input("Enter your choice: ")
+    num_trainings = int(input("How many times do you want to train? "))
+    for i in range(num_trainings):
+        time.sleep(5) # sleep for 2 seconds
+        if choice == "1":
+            tree = tree1
+        elif choice == "2":
+            tree = tree2
+        elif choice == "3":
+            tree = tree3
+        elif choice == "4":
+            tree = tree4
+        elif choice == "5":
+            tree = tree5
+        else:
+            print(Fore.RED + "Invalid choice." + Style.RESET_ALL)
+            return
+        cost = tree.level * 5
+        if player.gold < cost:
+            print(Fore.RED + "You don't have enough gold to chop this tree." + Style.RESET_ALL)
+            return
+        logs_obtained = player.woodcutting_level.chop_tree(tree)
+        if logs_obtained > 0:
+            player.gold -= cost
+            print(Fore.GREEN + "You obtained {} logs.".format(logs_obtained) + Style.RESET_ALL)
+        else:
+            print(Fore.RED + "Your woodcutting level is too low" + Style.RESET_ALL)
+        save_game(player)
+
 
 
 # Define enemy class
@@ -88,14 +160,16 @@ def load_game():
         print("Save file not found.")
 
 # Define function to start game
-def start_game():
+def start_game(skip = False):
     print(Fore.CYAN + "Welcome to RuneScape Adventure!" + Style.RESET_ALL)
-    choice = input("Do you want to start a new game or load a saved game? (new/load) ")
-    if choice == "new":
-        name = input("What is your name? ")
-        player = Player(name)
-    else:
-        player = load_game()
+    if skip == False:
+        choice = input("Do you want to start a new game or load a saved game? (new/load) ")
+        if choice == "new":
+            name = input("What is your name? ")
+            player = Player(name)
+        else:
+            player = load_game()
+    
     while True:
         print("You are in the town square.")
         print(Fore.GREEN + "11. Fight goblins")
@@ -103,7 +177,9 @@ def start_game():
         print(Fore.BLUE + "2. View status")
         print(Fore.MAGENTA + "3. Buy item")
         print(Fore.YELLOW + "4. Train")
-        print("5. Quit game")
+        print(Fore.CYAN + "5. Chop a tree")
+        print("6. Quit game")
+
         choice = input("What do you want to do? ")
         if choice == "11":
             enemy = Enemy("Goblin", 50, 5, 2, 1)
@@ -131,10 +207,12 @@ def start_game():
             if player.level >= 2:
                 num_trainings = int(input("How many times do you want to train? "))
                 for i in range(num_trainings):
-                    time.sleep(5) # sleep for 2 seconds
+                    time.sleep(5)
                     print("Training {} of {}".format(i+1, num_trainings))
-                    player.exp += random.randint(1, 10) * player.level
-                    player.gold += random.randint(1, 10) * player.level
+                    exp = random.randint(1, 10) * player.level
+                    gold = random.randint(1, 10) * player.level
+                    player.exp += exp
+                    player.gold += gold
 
                     if player.exp >= player.level * 100:
                         player.level += 1
@@ -145,10 +223,13 @@ def start_game():
                         player.exp -= player.level * 100
                         print("You leveled up to level {}!".format(player.level))
                     else:
-                        print("You gained 20 experience points.")
+                        print("You gained " + str(exp) + " experience points and " + str(gold) + " gold.")
+                        save_game(player)
             else:
                 print("You need to be at least level 2 to train.")
         elif choice == "5":
+            chop_tree(player)        
+        elif choice == "6":
             break
         else:
             print("Invalid choice.")
@@ -158,5 +239,8 @@ def start_game():
 
 
 
-# Start the game
-start_game()
+try:
+    start_game()
+except KeyboardInterrupt:
+    print("You pressed Ctrl+C. Going back to main menu...")
+    start_game()
