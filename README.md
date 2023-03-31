@@ -20,6 +20,8 @@ This is a simple text-based game where you can fight goblins, buy items, and tra
 - Level: Starting level is 1. Increases when the player gains enough experience points.
 - Experience: Starting experience points is 0. Increases when the player defeats enemies or trains.
 - Gold: Starting gold is 0. Can be obtained by defeating enemies or training.
+- Woodcutting: Spend your gold that you earned to level up
+- Save state: The game keeps a savestate now
 
 ### Enemies
 - Name: Goblin
