@@ -30,6 +30,12 @@ This is a simple text-based game where you can fight goblins, buy items, and tra
 - Defense: Starting defense power is 2.
 - Level: Starting level is 1.
 
+- Name: Dragon
+- Health: Starting health is 350.
+- Attack: Starting attack power is 30.
+- Defense: Starting defense power is 30.
+- Level: Starting level is 20.
+
 ## Actions
 - Fight goblins: Fight goblins to gain experience points and gold. If the player defeats the goblin, they gain 10 gold and experience points equal to the goblin's level times 10. If the player's health reaches 0, the game is over.
 - View status: View the player's current status, including name, health, attack, defense, level, experience points, and gold.
