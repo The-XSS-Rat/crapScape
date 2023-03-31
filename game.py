@@ -77,14 +77,19 @@ def start_game():
     player = Player(name)
     while True:
         print("You are in the town square.")
-        print(Fore.GREEN + "1. Fight goblins")
+        print(Fore.GREEN + "11. Fight goblins")
+        print(Fore.GREEN + "12. Fight dragon")
         print(Fore.BLUE + "2. View status")
-        print(Fore.MAGENTA + "Buy item")
+        print(Fore.MAGENTA + "3. Buy item")
         print(Fore.YELLOW + "4. Train")
         print("5. Quit game")
         choice = input("What do you want to do? ")
-        if choice == "1":
+        if choice == "11":
             enemy = Enemy("Goblin", 50, 5, 2, 1)
+            if not fight_enemy(player, enemy):
+                break
+        if choice == "12":
+            enemy = Enemy("Dragon", 350, 30, 30, 20)
             if not fight_enemy(player, enemy):
                 break
         elif choice == "2":
