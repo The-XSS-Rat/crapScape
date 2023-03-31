@@ -1,5 +1,6 @@
 import random
 import time
+import pickle
 from colorama import init, Fore, Style
 
 
@@ -70,11 +71,31 @@ def fight_enemy(player, enemy):
             print(Fore.YELLOW + "You leveled up to level {}!".format(player.level) + Style.RESET_ALL)
         return True
 
+# Define function to save game
+def save_game(player):
+    with open("savefile.pickle", "wb") as f:
+        pickle.dump(player, f)
+    print("Game saved!")
+
+# Define function to load game
+def load_game():
+    try:
+        with open("savefile.pickle", "rb") as f:
+            player = pickle.load(f)
+        print("Game loaded!")
+        return player
+    except FileNotFoundError:
+        print("Save file not found.")
+
 # Define function to start game
 def start_game():
     print(Fore.CYAN + "Welcome to RuneScape Adventure!" + Style.RESET_ALL)
-    name = input("What is your name? ")
-    player = Player(name)
+    choice = input("Do you want to start a new game or load a saved game? (new/load) ")
+    if choice == "new":
+        name = input("What is your name? ")
+        player = Player(name)
+    else:
+        player = load_game()
     while True:
         print("You are in the town square.")
         print(Fore.GREEN + "11. Fight goblins")
@@ -131,6 +152,8 @@ def start_game():
             break
         else:
             print("Invalid choice.")
+    if choice != "new":
+        save_game(player)
 
 
 
