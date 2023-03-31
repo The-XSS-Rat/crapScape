@@ -3,76 +3,7 @@ import time
 import os
 import pickle
 from colorama import init, Fore, Style
-
-
-class WoodcuttingLevel:
-    def __init__(self):
-        self.level = 1
-        self.exp = 0
-
-    def chop_tree(self, tree):
-        logs_obtained = 0
-        if self.level >= tree.level:
-            logs_obtained = tree.logs
-            self.exp += tree.exp
-            if self.exp >= self.level * 100:
-                self.level += 1
-                self.exp = 0
-        return logs_obtained
-    
-class CraftingLevel:
-    def __init__(self):
-        self.level = 1
-        self.exp = 0
-
-    def craft_item(self, item):
-        item_crafted = 0
-        if self.level >= item.level:
-            item_crafted = item.items
-            self.exp += item.exp
-            if self.exp >= self.level * 100:
-                self.level += 1
-                self.exp = 0
-        return item_crafted
-
-
-class Tree:
-    def __init__(self, name, level, logs, exp):
-        self.name = name
-        self.level = level
-        self.logs = logs
-        self.exp = exp
-
-    def __str__(self):
-        return self.name
-    
-class Item:
-    def __init__(self, name, level, items, exp):
-        self.name = name
-        self.level = level
-        self.items = items
-        self.exp = exp
-
-    def __str__(self):
-        return self.name
-    
-item1 = Item("Pretty Gem", 1, 1, 10)
-item2 = Item("Bold Gem", 15, 10, 100)
-item3 = Item("Glowing Gem", 30, 25, 250)
-item4 = Item("Shining Gem", 45, 50, 500)
-item5 = Item("Radiant Gem", 60, 100, 1000)
-item6 = Item("Gleaming Gem", 75, 250, 2500)
-
-
-tree1 = Tree("Normal tree", 1, 1, 10)
-tree2 = Tree("Oak tree", 15, 10, 100)
-tree3 = Tree("Willow tree", 30, 25, 250)
-tree4 = Tree("Maple tree", 45, 50, 500)
-tree5 = Tree("Yew tree", 60, 100, 1000)
-tree6 = Tree("Magic tree", 75, 250, 2500)
-tree7 = Tree("Redwood tree", 90, 500, 5000)
-tree8 = Tree("Elder tree", 99, 1000, 10000)
-
+import crafting,woodcutting,mining
 
 # Define player class
 class Player:
@@ -84,9 +15,15 @@ class Player:
         self.level = 1
         self.exp = 0
         self.gold = 0
-        self.woodcutting_level = WoodcuttingLevel()
-        self.crafting_level = CraftingLevel()
+        self.woodcutting_level = woodcutting.WoodcuttingLevel()
+        self.crafting_level = crafting.CraftingLevel()
         self.inventory = []
+        self.headgear = None
+        self.chestplate = None
+        self.leggings = None
+        self.boots = None
+        self.weapon = None
+        self.mining_level = mining.MiningLevel()
 
 
     def buy_item(self, item_cost):
@@ -96,6 +33,9 @@ class Player:
         else:
             print(Fore.RED + "You don't have enough gold." + Style.RESET_ALL)
             return False
+    
+    def sell_item(self, item_cost):
+        self.gold += item_cost
 
 def chop_tree(player):
     print("Which tree do you want to chop?")
@@ -114,17 +54,23 @@ def chop_tree(player):
     choice = input("Enter your choice: ")
     num_trainings = int(input("How many times do you want to train? "))
     for i in range(num_trainings):
-        time.sleep(5) # sleep for 2 seconds
+        time.sleep(0.1)
         if choice == "1":
-            tree = tree1
+            tree = woodcutting.tree1
         elif choice == "2":
-            tree = tree2
+            tree = woodcutting.tree2
         elif choice == "3":
-            tree = tree3
+            tree = woodcutting.tree3
         elif choice == "4":
-            tree = tree4
+            tree = woodcutting.tree4
         elif choice == "5":
-            tree = tree5
+            tree = woodcutting.tree5
+        elif choice == "6":
+            tree = woodcutting.tree6
+        elif choice == "7":
+            tree = woodcutting.tree7
+        elif choice == "8":
+            tree = woodcutting.tree8
         elif choice == "q":
             return
         else:
@@ -143,6 +89,58 @@ def chop_tree(player):
             print(Fore.RED + "Your woodcutting level is too low" + Style.RESET_ALL)
         save_game(player)
 
+def mine_item(player):
+    print("Which item do you want to mine?")
+    print("1. Copper ore (level 1)")
+    print("2. Tin ore (level 15)")
+    print("3. Iron ore (level 30)")
+    print("4. Coal ore (level 45)")
+    print("5. Mithril ore (level 60)")
+    print("6. Adamantite ore (level 75)")
+    print("7. Runite ore (level 90)")
+    print("8. Dragonite ore (level 99)")
+    print("q. Quit")
+    print("Your gold: {}".format(player.gold))
+    print("Your mining level: {}".format(player.mining_level.level))
+
+    choice = input("Enter your choice: ")
+    num_trainings = int(input("How many times do you want to train? "))
+    for i in range(num_trainings):
+        time.sleep(0.1)
+        if choice == "1":
+            item = mining.rock1
+        elif choice == "2":
+            item = mining.rock2
+        elif choice == "3":
+            item = mining.rock3
+        elif choice == "4":
+            item = mining.rock4
+        elif choice == "5":
+            item = mining.rock5
+        elif choice == "6":
+            item = mining.rock6
+        elif choice == "7":
+            item = mining.rock7
+        elif choice == "8":
+            item = mining.rock8
+        elif choice == "q":
+            return
+        else:
+            print(Fore.RED + "Invalid choice." + Style.RESET_ALL)
+            return
+        cost = item.level * 5
+        if player.gold < cost:
+            print(Fore.RED + "You don't have enough gold to mine this item." + Style.RESET_ALL)
+            return
+        item_obtained = player.mining_level.mine_item(item)
+        if item_obtained > 0:
+            player.gold -= cost
+            print(Fore.GREEN + "You obtained {} {}.".format(item_obtained, item.name) + Style.RESET_ALL)
+
+        else:
+            print(Fore.RED + "Your mining level is too low" + Style.RESET_ALL)
+        save_game(player)
+
 def craft_item(player):
     print("Which item do you want to craft?")
     print("1. Pretty Gem (level 1)")
@@ -158,19 +156,19 @@ def craft_item(player):
     choice = input("Enter your choice: ")
     num_trainings = int(input("How many times do you want to train? "))
     for i in range(num_trainings):
-        time.sleep(5)
+        time.sleep(0.1)
         if choice == "1":
-            item = item1
+            item = crafting.item1
         elif choice == "2":
-            item = item2
+            item = crafting.item2
         elif choice == "3":
-            item = item3
+            item = crafting.item3
         elif choice == "4":
-            item = item4
+            item = crafting.item4
         elif choice == "5":
-            item = item5
+            item = crafting.item5
         elif choice == "6":
-            item = item6
+            item = crafting.item6
         elif choice == "q":
             return
         else:
@@ -185,11 +183,32 @@ def craft_item(player):
             player.gold -= cost
             print(Fore.GREEN + "You obtained {} items.".format(items_obtained) + Style.RESET_ALL)
             add_item_to_inventory(player, item)
+        save_game(player)
+
 
 #define a method to add an item to the player's inventory
 def add_item_to_inventory(player, item):
     player.inventory.append(item)
     print(Fore.GREEN + "You obtained a {}.".format(item.name) + Style.RESET_ALL)
+
+#define a method to display the inventory
+def display_inventory(player):
+    print("Your inventory:")
+    for item in player.inventory:
+        print(item.name + " ({} gold)".format(item.cost))
+    print("Your gold: {}".format(player.gold))
+
+def sell_item(player, item):
+    if item in player.inventory:
+        player.inventory.remove(item)
+        player.gold += item.cost
+        print(Fore.GREEN + "You sold a {}.".format(item.name) + Style.RESET_ALL)
+    else:
+        print(Fore.RED + "You don't have a {}.".format(item.name) + Style.RESET_ALL)
+
+def sellAll(player):
+    for item in player.inventory:
+        sell_item(player, item)
 
 # Define enemy class
 class Enemy:
@@ -211,6 +230,14 @@ def openInventory(player):
     print("1. Buy health potion (50 gold)")
     print("2. Buy attack potion (50 gold)")
     print("3. Buy defense potion (50 gold)")
+    print("4. Sell Pretty gem (50 gold)")
+    print("5. Sell Bold gem (250 gold)")
+    print("6. Sell Glowing gem (500 gold)")
+    print("7. Sell Shining gem (1000 gold)")
+    print("8. Sell Radiant gem (2000 gold)")
+    print("9. Sell Gleaming gem (5000 gold)")
+    print("10. Sell all items")
+
     print("q. Quit")
     print("Your gold: {}".format(player.gold))
     choice = input("Enter your choice: ")
@@ -226,6 +253,20 @@ def openInventory(player):
         if player.buy_item(50):
             player.defense += 5
             print(Fore.GREEN + "You obtained a defense potion." + Style.RESET_ALL)
+    elif choice == "4":
+        sell_item(player, crafting.item1)
+    elif choice == "5":
+        sell_item(player, crafting.item2)
+    elif choice == "6":
+        sell_item(player, crafting.item3)
+    elif choice == "7":
+        sell_item(player, crafting.item4)
+    elif choice == "8":
+        sell_item(player, crafting.item5)
+    elif choice == "9":
+        sell_item(player, crafting.item6)
+    elif choice == "10":
+        sellAll(player)
     elif choice == "q":
         return
     else:
@@ -297,6 +338,9 @@ def start_game(skip = False):
         print(Fore.GREEN + "14. Fight skeleton" + " - " + "Level: 2 " + " - " + "Health: 60 " + " - " + "Attack: 6 " + " - " + "Defense: 6")
         print(Fore.GREEN + "15. Fight zombie" + " - " + "Level: 1 " + " - " + "Health: 50 " + " - " + "Attack: 5 " + " - " + "Defense: 5")
         print(Fore.GREEN + "16. Fight troll" + " - " + "Level: 4 " + " - " + "Health: 90 " + " - " + "Attack: 9 " + " - " + "Defense: 9")
+        print(Fore.GREEN + "17. Fight orc" + " - " + "Level: 3 " + " - " + "Health: 75 " + " - " + "Attack: 7 " + " - " + "Defense: 7")
+        print(Fore.GREEN + "18. Fight giant rat" + " - " + "Level: 1 " + " - " + "Health: 50 " + " - " + "Attack: 5 " + " - " + "Defense: 5")
+        print(Fore.GREEN + "19. Fight giant bat" + " - " + "Level: 2 " + " - " + "Health: 60 " + " - " + "Attack: 6 " + " - " + "Defense: 6")
 
         print(Fore.RED + "1. View inventory")
         print(Fore.BLUE + "2. View status")
@@ -304,7 +348,8 @@ def start_game(skip = False):
         print(Fore.YELLOW + "4. Train")
         print(Fore.CYAN + "5. Chop a tree")
         print(Fore.CYAN + "6. Craft an item")
-        print("7. Quit game")
+        print(Fore.CYAN + "7. Mine an item")
+        print("8. Quit game")
 
         choice = input("What do you want to do? ")
         if choice == "1":
@@ -331,6 +376,20 @@ def start_game(skip = False):
             enemy = Enemy("Zombie", 200, 20, 15, 15)
             if not fight_enemy(player, enemy):
                 break
+        if choice == "16":
+            enemy = Enemy("Troll", 250, 25, 20, 20)
+            if not fight_enemy(player, enemy):
+                break
+        elif choice == "17":
+            enemy   = Enemy("Massive spider", 1000, 100, 50, 50)
+            if not fight_enemy(player, enemy):
+                break
+        elif choice == "18":
+            enemy = Enemy("Giant zombie", 1500, 500, 2570, 250)
+            if not fight_enemy(player, enemy):
+                break
+        elif choice == "19":
+            enemy = Enemy("Giant skeleton", 2500, 500, 25, 25)
         elif choice == "2":
             print("Name: {}".format(player.name))
             print("Health: {}".format(player.health))
@@ -339,7 +398,7 @@ def start_game(skip = False):
             print("Level: {}".format(player.level))
             print("Experience: {}".format(player.exp))
             print("Gold: {}".format(player.gold))
-            print("Inventory: {}".format(player.inventory))
+            display_inventory(player)            
             print("Woodcutting level: {}".format(player.woodcutting_level.level))
             print("crafting level: {}".format(player.crafting_level.level))
         elif choice == "3":
@@ -352,7 +411,7 @@ def start_game(skip = False):
             if player.level >= 2:
                 num_trainings = int(input("How many times do you want to train? "))
                 for i in range(num_trainings):
-                    time.sleep(5)
+                    time.sleep(0.1)
                     print("Training {} of {}".format(i+1, num_trainings))
                     exp = random.randint(1, 10) * player.level
                     gold = random.randint(1, 10) * player.level
@@ -377,9 +436,11 @@ def start_game(skip = False):
         elif choice == "6":
             craft_item(player)
         elif choice == "7":
+            mine_item(player)
+        elif choice == "8":
             break
         else:
-            print("Invalid choice.")
+            print("=========================================")
     if choice != "new":
         save_game(player)
 
