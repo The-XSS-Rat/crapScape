@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSON to Flowchart</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js.map"></script>
+    <style type="text/css">
+        #flowchart {
+            width: 800px;
+            height: 600px;
+            border: 1px solid lightgray;
+            margin: auto;
+        }
+    </style>
+    <script type="text/javascript">
+        var network;
+        function generateFlowchart() {
+            let input = document.getElementById('jsonInput').value;
+            let data = JSON.parse(input);
+
+            let nodes = [];
+            let edges = [];
+
+            function processNode(nodeKey, nodeData) {
+                nodes.push({id: nodeKey, label: nodeData.step});
+                if (nodeData.next) {
+                    if (Array.isArray(nodeData.next)) {
+                        nodeData.next.forEach(nextId => {
+                            edges.push({from: nodeKey, to: nextId});
+                        });
+                    } else {
+                        edges.push({from: nodeKey, to: nodeData.next});
+                    }
+                }
+                if (nodeData.branches) {
+                    for (let branchKey in nodeData.branches) {
+                        let branch = nodeData.branches[branchKey];
+                        processNode(branchKey, branch);
+                        edges.push({from: nodeKey, to: branchKey});
+                    }
+                }
+            }
+
+            for (let key in data) {
+                processNode(key, data[key]);
+            }
+
+            let container = document.getElementById('flowchart');
+            data = {
+                nodes: new vis.DataSet(nodes),
+                edges: new vis.DataSet(edges)
+            };
+            let options = {
+                layout: {
+                    hierarchical: {
+                        direction: "UD", // Changed to top-to-bottom (Up-Down)
+                        sortMethod: "directed",
+                        levelSeparation: 200,
+                        nodeSpacing: 200,
+                        treeSpacing: 200
+                    }
+                },
+                edges: {
+                    arrows: {
+                        to: { enabled: true, scaleFactor: 1, type: 'arrow' }
+                    }
+                },
+                nodes: {
+                    shape: 'box',
+                    font: {
+                        face: 'Arial',
+                        size: 14,
+                        color: '#000000'
+                    },
+                    borderWidth: 2,
+                    chosen: true,
+                    color: {
+                        border: '#2B7CE9',
+                        background: '#D2E5FF',
+                        highlight: {
+                            border: '#2B7CE9',
+                            background: '#FFFF00'
+                        }
+                    }
+                }
+            };
+            network = new vis.Network(container, data, options);
+        }
+
+        function exportToPng() {
+            network.once('afterDrawing', function() {
+                var canvas = network.canvas.frame.canvas;
+                var image = canvas.toDataURL('image/png');
+                var link = document.createElement('a');
+                link.href = image;
+                link.download = 'flowchart.png';
+                link.click();
+            });
+            network.redraw();
+        }
+
+        function exportToJson() {
+            var json = JSON.stringify(network.exportData(), null, 2);
+            var link = document.createElement('a');
+            link.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(json);
+            link.download = 'flowchart.json';
+            link.click();
+        }
+    </script>
+</head>
+<body>
+    <h1>JSON to Flowchart</h1>
+    <textarea id="jsonInput" rows="10" cols="30"></textarea>
+    <button onclick="generateFlowchart()">Generate Flowchart</button>
+    <button onclick="exportToPng()">Export to PNG</button>
+    <button onclick="exportToJson()">Export to JSON</button>
+    <div id="flowchart"></div>
+</body>
+</html>
